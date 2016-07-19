@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WhiteBoard</title>
+    <style>
+        canvas{
+            border: 1px grey solid;
+        }
+    </style>
+</head>
+<body>
+<canvas id="board" width="500px" height="500px">
+
+</canvas>
+</body>
+<script src="js/realtimecat-0.4.0.min.js"></script>
+<script src="js/jquery.min.js"></script>
+<script src="canvas.js"></script>
+<script>
+    'use strict';
+
+    var session ;
+
+    var context = canvas.getContext('2d');
+
+
+    var apikey = "8b8da770-d99c-4617-9f9a-79510505e175",
+            secret="262abb49-2ffc-46c6-bdc7-cb27579b21c5",
+            p2p_session="314e6da1-7282-44cd-92b2-41cc99e1d6ba";
+
+    var token_url = "https://api.realtimecat.com/v0.3/sessions/"+p2p_session+'/tokens';
+
+
+    $.ajax({
+        'url':token_url,
+        'method':'POST',
+        'headers':{
+            'X-RTCAT-APIKEY':apikey,
+            'X-RTCAT-SECRET':secret
+        },
+        'data':{
+            'session_id':p2p_session,
+            'type':'pub'
+        }
+    }).done(function(msg){
+
+        var token = msg.uuid;
+
+        session = new RTCat.Session(token);
+        session.on('connected',function () {
+            session.on('message',function (content) {
+                messageHandler(content);
+            });
+        });
+        session.connect();
+    }).error(function(error){
+        console.log(error)
+    });
+
+
+    function boardCoast(packet) {
+        session.broadcastMessage(packet);
+    }
+
+
+
+
+</script>
+</html>
